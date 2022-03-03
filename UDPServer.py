@@ -1,15 +1,18 @@
 #'127.0.0.1', 444# UDP server
 
 import socket
+import threading
 
 class UDPServer:
 	# UDP Server socket class
-
+	
 	def __init__(this, host, port):
 		this.host = host 
 		this.port = port
 		#this.user_addr
 		this.server = None
+		this.user_list = []
+		
 		
 	
 	def create_server(this):
@@ -20,7 +23,9 @@ class UDPServer:
 	def listen_for_user(this):
 		
 		try:
-				this.message_handling()
+			data, user_addr = this.server.recvfrom(2048)
+			
+			this.message_handling(data, user_addr)
 			
 		except OSError as error:
 			print("No users found")
@@ -28,9 +33,16 @@ class UDPServer:
 		this.server.close()
 		
 
-	def message_handling(this):
+	def message_handling(this, data, user_addr):
 		while True:
 			data, user_addr = this.server.recvfrom(2048)
+
+			#create list .... move somewhere else
+			#this.user_list.append(user_addr)
+			#for i in this.user_list:
+			if user_addr not in this.user_list:
+				this.user_list.append(user_addr)
+
 			data = data.decode("utf-8")
 			
 			# User exits the chat
@@ -39,11 +51,17 @@ class UDPServer:
 				break
 			
 			print(f"Client: {data} {user_addr}")
-			data = input("Enter a message: ")
+			#data = input("Enter a message: ")
+			data = data.upper()
 			data = data.encode("utf-8")
-			this.server.sendto(data, user_addr)
+			if len(this.user_list) > 1:
+				this.server.sendto(data, this.user_list[1])
 
-		this.server.close()
+			# put threads here
+
+			print(this.user_list)
+
+		#this.server.close()
 
 def main():
 	# Start a chat

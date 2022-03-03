@@ -34,7 +34,7 @@ class UDPClient:
 
 				data, this.server_addr = this.user.recvfrom(2048)
 				data = data.decode("utf-8")
-				print(f"Server: {data} {this.server_addr}")
+				print(f"Port: {this.server_addr} sent: {data} ")
 
 		except OSError as error:
 			print(error)
