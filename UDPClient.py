@@ -1,55 +1,59 @@
 # UDP Client 
 
 import socket
+import threading
+
 
 class UDPClient:
 	# UDP Client socket class
+	# constuctor
+	def __init__(self, host, port):
+		self.server_addr = (host, port)
+		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		#self.socket.bind((host, port))
 
-	def __init__(this, host, port):
-		this.host = host
-		this.port = port
-		this.server_addr = (this.host, this.port)
-		this.user = None
+		send_thread= threading.Thread(target=self.send)
+		#receive_thread = threading.Thread(target=self.receive)
+		#send_thread.daemon = True
+		send_thread.start()
+		#receive_thread.start()
 		
+		
+	def send(self):
+		
+		while True:
+			message = input("-") #(f'{self.server_addr[1]}: ')
 
-	def create_user(this):
-		this.user = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		print("User created")
+			# User leaves the chat
+			if message == "bye" or message == "Bye" or message == "BYE":
+				message = message.encode("utf-8")
+				self.socket.sendto(message, self.server_addr) #Send encoded msg to server - host, port
+				print("You left the chat")
+				break 
+
+			message = message.encode("utf-8") #Send msg to server
+			self.socket.sendto(message, self.server_addr)
+			#self.receive()
+			#self.receive_thread.start()	
+			receive_thread=threading.Thread(target=self.receive) #Starts receiver thread so cl
+			receive_thread.daemon=True
+			receive_thread.start()
 	
-	def sending_to_server(this):
-		try: 
+	def receive(self):
+		while True:
+			try:
+				message, self.server_addr = self.socket.recvfrom(2048) #other user's address
+				message = message.decode()
+				print(f'{message}')
+				
+			except:
+				pass
+			
 
-			while True:
-				data = input("Enter a message: ")
+client_obj = UDPClient("127.0.0.1", 12000)
+print("Client working \nEnter your name first")
+#client_obj.send()
 
-				# User leaves the chat
-				if data == "bye" or data == "Bye" or data == "BYE":
-					data = data.encode("utf-8")
-					this.user.sendto(data, this.server_addr)
-					print("You left the chat")
-					break 
-
-				data = data.encode("utf-8")
-				this.user.sendto(data, this.server_addr)
-
-				data, this.server_addr = this.user.recvfrom(2048)
-				data = data.decode("utf-8")
-				print(f"Port: {this.server_addr} sent: {data} ")
-
-		except OSError as error:
-			print(error)
-
-		finally:
-			this.user.close()
-
-def main():
-	# Start a chat
-	client_obj = UDPClient("127.0.0.1", 12000)
-	client_obj.create_user()
-	client_obj.sending_to_server()
-
-if __name__ == "__main__":
-		main()
 
 ''''
 

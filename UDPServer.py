@@ -3,75 +3,89 @@
 import socket
 import threading
 
-class UDPServer:
-	# UDP Server socket class
-	
-	def __init__(this, host, port):
-		this.host = host 
-		this.port = port
-		#this.user_addr
-		this.server = None
-		this.user_list = []
-		
-		
-	
-	def create_server(this):
-		this.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		this.server.bind((this.host, this.port))
-		print('Chat open')
+host = "127.0.0.1"
+port=12000
 
-	def listen_for_user(this):
-		
-		try:
-			data, user_addr = this.server.recvfrom(2048)
-			
-			this.message_handling(data, user_addr)
-			
-		except OSError as error:
-			print("No users found")
+server_soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_soc.bind((host, port))
+user_list = []
 
-		this.server.close()
-		
+msg_log = []
+port_and_msg = ""
+joined_msg = "WELCOME"
 
-	def message_handling(this, data, user_addr):
+#Receive message from client and then broadcasts the message to all activer clients.
+def receive_from_user():
+	#server_soc.sendto(joined_msg.encode(), user_addr)
+	try:
 		while True:
-			data, user_addr = this.server.recvfrom(2048)
+			data, user_addr = server_soc.recvfrom(2048) #Get message and address from client
+			data=data.decode()
+
+			port_and_msg= str(user_addr[1]) + ": " + data
+			msg_log.append(port_and_msg)
+			print(msg_log)
+
+			if user_addr not in user_list:
+				user_list.append(user_addr)
+
+			print(f'\nReceived message: {data} from {user_addr}')
+			print(user_list)
+
+			#Broadcasts message received to all active clients.
+			for user_addr in user_list:
+				#for port_and_msg in msg_log:
+				
+
+				if str(user_addr[1]) != port_and_msg[0:5]: # except client which sent message
+					server_soc.sendto(port_and_msg.encode(), user_addr)
+
+			
+	except OSError as error:
+		print("No users found")
+
+
+print('Chat open')
+receive_thread=threading.Thread(target=receive_from_user)
+receive_thread.start()
+
+
+
+
+
+'''
+def message_handling(this, data, user_addr):
+	while True:
+		data, user_addr = this.server.recvfrom(2048)
 
 			#create list .... move somewhere else
 			#this.user_list.append(user_addr)
 			#for i in this.user_list:
-			if user_addr not in this.user_list:
-				this.user_list.append(user_addr)
+		if user_addr not in this.user_list:
+			this.user_list.append(user_addr)
 
-			data = data.decode("utf-8")
+		data = data.decode("utf-8")
 			
-			# User exits the chat
-			if data == "bye" or data == "Bye" or data == "BYE":
-				print("User left the chat")
-				break
+		# User exits the chat
+		if data == "bye" or data == "Bye" or data == "BYE":
+			print("User left the chat")
+			break
 			
-			print(f"Client: {data} {user_addr}")
-			#data = input("Enter a message: ")
-			data = data.upper()
-			data = data.encode("utf-8")
-			if len(this.user_list) > 1:
-				this.server.sendto(data, this.user_list[1])
+		print(f"Client: {data} {user_addr}")
+		#data = input("Enter a message: ")
+		data = data.upper()
+		data = data.encode("utf-8")
+		if len(this.user_list) > 1:
+			this.server.sendto(data, this.user_list[1])
 
-			# put threads here
+		# put threads here
 
-			print(this.user_list)
+		print(this.user_list)
 
 		#this.server.close()
+'''
 
-def main():
-	# Start a chat
-	server_obj = UDPServer("127.0.0.1", 12000)
-	server_obj.create_server()
-	server_obj.listen_for_user()
-	
 
-if __name__ == "__main__":
-	main()
 
 '''
 if __name__ == "__main__":
