@@ -1,5 +1,6 @@
 # UDP Client 
 
+from http import client
 import socket
 import threading
 
@@ -10,19 +11,22 @@ class UDPClient:
 	def __init__(self, host, port):
 		self.server_addr = (host, port)
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		#self.socket.bind((host, port))
+
+		#Send the name of the client to the server
+		name = input("Enter your name first (beginning with '@'):")
+		self.socket.sendto(name.encode(), self.server_addr)
 
 		send_thread= threading.Thread(target=self.send)
-		#receive_thread = threading.Thread(target=self.receive)
-		#send_thread.daemon = True
+		receive_thread=threading.Thread(target=self.receive)
+
+		receive_thread.start()
 		send_thread.start()
-		#receive_thread.start()
 		
-		
+	
 	def send(self):
-		
 		while True:
-			message = input("-") #(f'{self.server_addr[1]}: ')
+			#Prompt user to enter message
+			message = input("")
 
 			# User leaves the chat
 			if message == "bye" or message == "Bye" or message == "BYE":
@@ -33,26 +37,33 @@ class UDPClient:
 
 			message = message.encode("utf-8") #Send msg to server
 			self.socket.sendto(message, self.server_addr)
-			#self.receive()
-			#self.receive_thread.start()	
-			receive_thread=threading.Thread(target=self.receive) #Starts receiver thread so cl
-			receive_thread.daemon=True
-			receive_thread.start()
+
 	
 	def receive(self):
+		#self.send()
 		while True:
+			#self.send()
 			try:
-				message, self.server_addr = self.socket.recvfrom(2048) #other user's address
+				message, server_addr = self.socket.recvfrom(2048)
 				message = message.decode()
-				print(f'{message}')
-				
+
+
+				if message[7:].startswith('@'):
+					print(f'{message[7:]} HAS JOINED THE CHAT')
+
+				else:
+					print(f'{message}')
 			except:
 				pass
-			
+
+
 
 client_obj = UDPClient("127.0.0.1", 12000)
-print("Client working \nEnter your name first")
-#client_obj.send()
+#print("You have joined the chat \nEnter your name first")
+
+		
+
+
 
 
 ''''
