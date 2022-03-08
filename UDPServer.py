@@ -1,5 +1,4 @@
-#'127.0.0.1', 444# UDP server
-
+# UDP server
 import socket
 import threading
 
@@ -10,7 +9,7 @@ server_soc = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_soc.bind((host, port))
 
 user_list = [] #List of active client's addresses
-names = [] #List for to store the names of users - '@...'
+names = [] #List to store the names of users - '@...'
 
 msg_log=[]
 name_and_msg=""
@@ -24,7 +23,6 @@ def receive_from_client():
 			#Message and address received from client
 			data, user_addr = server_soc.recvfrom(2048) 
 			data=data.decode()
-			
 
 			#Message received from client, a notification is sent back to the client
 			notif = ">> SENT"
@@ -38,11 +36,14 @@ def receive_from_client():
 				if data.startswith("@"):
 					names.append(data)
 
+					#send all historical data to the new user who just joined
+					for msg in msg_log:
+						server_soc.sendto(msg.encode(), user_addr)
 
 			#Find postion of address in list. 
 			index = user_list.index(user_addr) 
 
-			#Corresp username stored in same position in names.
+			#Corresponding username stored in same position in names.
 			name_and_msg= str(names[index]) + ": " + data
 			msg_log.append(name_and_msg)
 			print(msg_log)
@@ -58,7 +59,6 @@ def receive_from_client():
 			
 	except OSError as error:
 		print("No users found")
-
 
 print('Chat open')
 receive_thread=threading.Thread(target=receive_from_client)

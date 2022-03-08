@@ -1,8 +1,6 @@
 # UDP Client 
-
 import socket
 import threading
-
 
 class UDPClient:
 	# UDP Client socket class
@@ -22,7 +20,6 @@ class UDPClient:
 		receive_thread.start()
 		send_thread.start()
 		
-	
 	def send(self):
 		while True:
 			#Prompt user to enter message
@@ -39,7 +36,6 @@ class UDPClient:
 			message = message.encode("utf-8") 
 			self.socket.sendto(message, self.server_addr)
 
-	
 	def receive(self):
 		while True:
 			try:
@@ -50,20 +46,14 @@ class UDPClient:
 				if message != ">> SENT":
 					index_of_colon = (message.index(":")) + 2
 					username = message[index_of_colon:]
-					
 					if username.startswith('@'):
 						print(f'{username} HAS JOINED THE CHAT') # @.. HAS JOINED THE CHAT
-
 					else:
 						print(f'{message}')						# @.. : Hello
-
 				else:
 					print(f'{message}')
-
 			except:
 				pass
-
-
 
 client_obj = UDPClient("127.0.0.1", 12000)
 
