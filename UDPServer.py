@@ -24,44 +24,63 @@ def receive_from_client():
 			data, user_addr = server_soc.recvfrom(2048) 
 			data=data.decode()
 
-			#Message received from client, a notification is sent back to the client
-			notif = ">> SENT"
-			server_soc.sendto(notif.encode(), user_addr)
+			sent_confirmation(user_addr)
 
 			#If address not already present in the list, then add the address. 
-			#Add name to list
 			if user_addr not in user_list: 
 				user_list.append(user_addr)
 				
+				#Add username to list.
 				if data.startswith("@"):
 					names.append(data)
-
-					#send all historical data to the new user who just joined
-					for msg in msg_log:
-						server_soc.sendto(msg.encode(), user_addr)
-
-			#Find postion of address in list. 
-			index = user_list.index(user_addr) 
-
-			#Corresponding username stored in same position in names.
-			name_and_msg= str(names[index]) + ": " + data
-			msg_log.append(name_and_msg)
-			print(msg_log)
-
-			print(f'\nReceived message: {data} from {user_addr}')
-			print(user_list)
-
-			#Broadcasts message received to all active clients except one who sent the message
-			#Port numbers are compared.
-			for addr in user_list:
-				if str(addr[1]) != str(user_addr[1]):
-					server_soc.sendto(name_and_msg.encode(), addr)
+					chat_history_retrieval(user_addr)
+			
+			#Adding username to list and broadcasting message
+			add_username(data, user_addr)
+			server_log(data, user_addr)
 			
 	except OSError as error:
 		print("No users found")
+
+#send acknowledgement to sender that their message was sent out
+def sent_confirmation(user_addr):
+	notif = ">> SENT"
+	server_soc.sendto(notif.encode(), user_addr)
+	
+#send all historical data to the new user who just joined
+def chat_history_retrieval(user_addr):
+	for msg in msg_log:
+		server_soc.sendto(msg.encode(), user_addr)
+
+#Storing of usernames with corresponding port
+def add_username(data, user_addr):
+	index = user_list.index(user_addr) 
+	name_and_msg= str(names[index]) + ": " + data
+	msg_log.append(name_and_msg)
+	broadcast(name_and_msg, user_addr)
+
+#Broadcasts message received to all active clients except one who sent the message
+def broadcast(name_and_msg, user_addr):
+	for addr in user_list:
+		if str(addr[1]) != str(user_addr[1]):
+			server_soc.sendto(name_and_msg.encode(), addr)
+
+#print out message receipts on server
+def server_log(data, user_addr):
+	print(msg_log)
+	print(f'\nReceived message: {data} from {user_addr}')
+	print(user_list)
 
 print('Chat open')
 receive_thread=threading.Thread(target=receive_from_client)
 receive_thread.start()
 
 
+# user leaving chat code
+
+'''	if data[0:3] == "bye" or data == "BYE" or data == "Bye":
+	left_msg = '\n data{data[3:]} has left the chat'
+	for addr in user_list:
+		if str(addr[1]) != str(user_addr[1]):
+			server_soc.sendto(left_msg.encode(), addr)
+	data = data[0:3] '''
