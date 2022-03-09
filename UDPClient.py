@@ -3,7 +3,7 @@ import socket
 import threading
 import PySimpleGUI as sg
 
-sg.theme("LightYellow")
+sg.theme("#D7F4FE")
 
 
 class UDPClient:
@@ -13,27 +13,27 @@ class UDPClient:
 		self.server_addr = (host, port)
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-		layout = [[sg.Text("Enter your name first (beginning with '@'):", size=(20,2), font='Blue', text_color='Magenta')],
+		#----Creating GUI 'login' window-----
+		layout = [[sg.Text("Enter your name first (beginning with '@'):", size=(20,2), font='LightGrey', text_color='Black')],
 		[sg.Input(key='-IN-')],
 		[sg.Button("Enter")]
 		]
-	
-		window = sg.Window("Group Chat", layout) #Create the window
+
+		#Create the window
+		window = sg.Window("Group Chat", layout)
 		self.name=""
 		while True:
 			event, values = window.read()
 			self.name = values['-IN-']
-    		# End program if user closes window or
-    		# presses the OK button
+
+    		# End program if user closes window or presses enter
 			if event == "ENTER" or event == sg.WIN_CLOSED:
-				#self.socket.sendto(name.encode(), self.server_addr)
 				break
-			
-			#print(name)
 			break
 		window.close()
+		#----End of GUI----
+
 		#Send the name of the client to the server
-		#self.name = input("Enter your name first (beginning with '@'):")
 		self.socket.sendto(self.name.encode(), self.server_addr)
 
 		#Threads - client's can send and receive
@@ -47,8 +47,7 @@ class UDPClient:
 		self.hash_str = ''
 
 
-	#creating a header. Header consists of: Type of message (M - normal, A- acknowledgement)
-	# the actual message, the hash generated from the message and the message time (maybe)
+	#Creating header: Type of message (M - normal, A- acknowledgement), message, hash code
 	def sender_hash(self, message):
 
 		for char in message:
@@ -63,18 +62,17 @@ class UDPClient:
 		
 			received_header_list = received_header.split(" #%# ")
 
+			#Receive header and split into relevent fields
 			if len(received_header_list) != 2:
 				received_msg_type = received_header_list[0]
 				received_message = received_header_list[1]
 				received_hash = received_header_list[2]
 				received_name = received_header_list[3]
 
-		# check if sent and received hashes are equal
-	#	if self.hash == received_hash: #message sent and received error free
 
+	# Displays messages in terminal
 	def print_message(self, header):
-		#If it is not the 'SENT' notification, then the username will be displayed with received message
-		if header != ">> SENT":
+		if header != ">> SENT":		# If not the 'SENT' notification - username displayed with received message
 		
 			header_list = header.split(" #%# ")
 
@@ -96,18 +94,18 @@ class UDPClient:
 			#Prompt user to enter message
 			message = input("")
 
-			#generate header and hash for message
+			#Generate header and hash 
 			header = self.sender_hash(message)
 			header_list = header.split(" #%# ")
 
-			#---------test header and header list and hash
+			#-------test header and header list and hash
 			msg_type = header_list[0]
 			message = header_list[1]
 			sent_hash = header_list[2]
 
 			if message == "bye" or message == "Bye" or message == "BYE":
 
-				# need to send header and not message
+				#Send header
 				header = message.encode("utf-8")
 				self.socket.sendto(header, self.server_addr) 
 				print("You left the chat")

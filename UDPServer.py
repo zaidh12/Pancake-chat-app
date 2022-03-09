@@ -44,19 +44,19 @@ def receive_from_client():
 	except OSError as error:
 		print("No users found")
 
-#send acknowledgement to sender that their message was sent out
+#Send acknowledgement to sender that their message was sent out
 def sent_confirmation(user_addr):
 	notif = ">> SENT"
 	server_soc.sendto(notif.encode(), user_addr)
 	
-#send all historical data to the new user who just joined
+#All messages in message log sent to new client - historical retrieval
 def chat_history_retrieval(user_addr):
 	for msg in msg_log:
 		server_soc.sendto(msg.encode(), user_addr)
 
 #Storing of usernames with corresponding port
 def add_username(data, user_addr):
-	index = user_list.index(user_addr) 
+	index = user_list.index(user_addr)  #Name will be stored in same index position as port
 	name_and_msg=  data + " #%# " + str(names[index]) 
 	msg_log.append(name_and_msg)
 	broadcast(name_and_msg, user_addr)
@@ -67,11 +67,10 @@ def broadcast(name_and_msg, user_addr):
 		if str(addr[1]) != str(user_addr[1]):
 			server_soc.sendto(name_and_msg.encode(), addr)
 
-#print out message receipts on server
+#Print out message receipts on server
 def server_log(data, user_addr):
 	print(msg_log)
-	#print(f'\nReceived message: {data} from {user_addr}')
-	#print(user_list)
+
 
 print('Chat open')
 receive_thread=threading.Thread(target=receive_from_client)
