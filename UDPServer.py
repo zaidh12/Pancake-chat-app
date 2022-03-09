@@ -1,6 +1,8 @@
 # UDP server
 import socket
 import threading
+import os
+os.system("python -m pip install pysimplegui")
 
 host = "127.0.0.1"
 port=12000

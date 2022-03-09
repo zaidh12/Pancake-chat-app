@@ -1,6 +1,10 @@
 # UDP Client 
 import socket
 import threading
+import PySimpleGUI as sg
+
+sg.theme("LightYellow")
+
 
 class UDPClient:
 	# UDP Client socket class
@@ -9,8 +13,27 @@ class UDPClient:
 		self.server_addr = (host, port)
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+		layout = [[sg.Text("Enter your name first (beginning with '@'):", size=(20,2), font='Blue', text_color='Magenta')],
+		[sg.Input(key='-IN-')],
+		[sg.Button("Enter")]
+		]
+	
+		window = sg.Window("Group Chat", layout) #Create the window
+		self.name=""
+		while True:
+			event, values = window.read()
+			self.name = values['-IN-']
+    		# End program if user closes window or
+    		# presses the OK button
+			if event == "ENTER" or event == sg.WIN_CLOSED:
+				#self.socket.sendto(name.encode(), self.server_addr)
+				break
+			
+			#print(name)
+			break
+		window.close()
 		#Send the name of the client to the server
-		self.name = input("Enter your name first (beginning with '@'):")
+		#self.name = input("Enter your name first (beginning with '@'):")
 		self.socket.sendto(self.name.encode(), self.server_addr)
 
 		#Threads - client's can send and receive
