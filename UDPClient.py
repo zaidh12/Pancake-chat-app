@@ -32,6 +32,9 @@ class UDPClient:
 		header = "TypeM" + " #%# " + message + " #%# " + hash
 		return header
 
+	#def reciever_hash(self, message):
+
+
 	def print_message(self, message):
 		#If it is not the 'SENT' notification, then the username will be displayed with received message
 		if message != ">> SENT":
@@ -61,21 +64,21 @@ class UDPClient:
 			print(msg_type)
 			print(message)
 			print(sent_hash)
-
-
-
-
+			#---------test------------------------------
 
 			#User leaves the chat
 			if message == "bye" or message == "Bye" or message == "BYE":
-				message = message.encode("utf-8")
-				self.socket.sendto(message, self.server_addr) 
+
+				# need to send header and not message
+				header = message.encode("utf-8")
+				self.socket.sendto(header, self.server_addr) 
 				print("You left the chat")
-				break 
-			
-			#Send message to the server
-			message = message.encode("utf-8") 
-			self.socket.sendto(message, self.server_addr)
+				exit()
+				
+			#Send header to the server
+			header = header.encode("utf-8") 
+			self.socket.sendto(header, self.server_addr)
+	
 
 	def receive(self):
 		while True:
