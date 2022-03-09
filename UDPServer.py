@@ -55,7 +55,7 @@ def chat_history_retrieval(user_addr):
 #Storing of usernames with corresponding port
 def add_username(data, user_addr):
 	index = user_list.index(user_addr) 
-	name_and_msg= str(names[index]) + ": " + data
+	name_and_msg=  data + " #%# " + str(names[index]) 
 	msg_log.append(name_and_msg)
 	broadcast(name_and_msg, user_addr)
 
@@ -68,8 +68,8 @@ def broadcast(name_and_msg, user_addr):
 #print out message receipts on server
 def server_log(data, user_addr):
 	print(msg_log)
-	print(f'\nReceived message: {data} from {user_addr}')
-	print(user_list)
+	#print(f'\nReceived message: {data} from {user_addr}')
+	#print(user_list)
 
 print('Chat open')
 receive_thread=threading.Thread(target=receive_from_client)

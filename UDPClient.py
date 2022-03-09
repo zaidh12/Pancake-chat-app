@@ -20,32 +20,53 @@ class UDPClient:
 		receive_thread.start()
 		send_thread.start()
 
+		self.hash = 0
+		self.hash_str = ''
+
 
 	#creating a header. Header consists of: Type of message (M - normal, A- acknowledgement)
 	# the actual message, the hash generated from the message and the message time (maybe)
 	def sender_hash(self, message):
-		hash = 0
-		for char in message:
-			hash += ord(char)
 
-		hash = str(hash)	
-		header = "TypeM" + " #%# " + message + " #%# " + hash
+		for char in message:
+			self.hash += ord(char)
+
+		self.hash_str = str(self.hash)	
+		header = "TypeM" + " #%# " + message + " #%# " + self.hash_str
 		return header
 
-	#def reciever_hash(self, message):
+	def receiver_hash(self, received_header):
+		if received_header != ">> SENT":
+		
+			received_header_list = received_header.split(" #%# ")
 
+			if len(received_header_list) != 2:
+				received_msg_type = received_header_list[0]
+				received_message = received_header_list[1]
+				received_hash = received_header_list[2]
+				received_name = received_header_list[3]
 
-	def print_message(self, message):
+		# check if sent and received hashes are equal
+	#	if self.hash == received_hash: #message sent and received error free
+
+	def print_message(self, header):
 		#If it is not the 'SENT' notification, then the username will be displayed with received message
-		if message != ">> SENT":
-			index_of_colon = (message.index(":")) + 2
-			username = message[index_of_colon:]
-			if username.startswith('@'):
-				print(f'{username} HAS JOINED THE CHAT') # @.. HAS JOINED THE CHAT
-			else:
-				print(f'{message}')						# @.. : Hello
-		else:
-			print(f'{message}')
+		if header != ">> SENT":
+		
+			header_list = header.split(" #%# ")
+
+			if len(header_list) == 2:
+				print(f'{header_list[0]} HAS JOINED THE CHAT')
+			
+			msg_type = header_list[0]
+			message = header_list[1]
+			sent_hash = header_list[2]
+			sender_name = header_list[3]
+
+			print(f'{sender_name}: {message}')			
+			
+		else: 
+			print(header)
 		
 	def send(self):
 		while True:
@@ -61,12 +82,6 @@ class UDPClient:
 			message = header_list[1]
 			sent_hash = header_list[2]
 
-			print(msg_type)
-			print(message)
-			print(sent_hash)
-			#---------test------------------------------
-
-			#User leaves the chat
 			if message == "bye" or message == "Bye" or message == "BYE":
 
 				# need to send header and not message
@@ -79,18 +94,16 @@ class UDPClient:
 			header = header.encode("utf-8") 
 			self.socket.sendto(header, self.server_addr)
 	
-
 	def receive(self):
 		while True:
 			try:
-				message, server_addr = self.socket.recvfrom(2048)
-				message = message.decode()
-				self.print_message(message)
-				
+				header, server_addr = self.socket.recvfrom(2048)
+				header = header.decode()
+
+				self.receiver_hash(header)
+				self.print_message(header)
 			except:
 				pass
-
-	
 
 client_obj = UDPClient("127.0.0.1", 12000)
 
