@@ -1,5 +1,6 @@
 # UDP server
-import socket, threading, hashlib
+import socket
+import threading
 
 host = "127.0.0.1"
 port=12000
@@ -14,10 +15,6 @@ msg_log=[]
 name_and_msg=""
 joined_msg = "WELCOME"
 
-h = hashlib.new('sha256')
-hash_num = ''
-string = '@salma'
-
 #Receive message from client and then broadcasts the message to all active clients.
 def receive_from_client():
 		
@@ -26,12 +23,8 @@ def receive_from_client():
 			#Message and address received from client
 			data, user_addr = server_soc.recvfrom(2048) 
 			data=data.decode()
-			h.update(data.encode())
-			hash_num = h.hexdigest()
-			server_soc.sendto(hash_num.encode(), user_addr)
-			print(hash_num)
-			print(hash_num + " -its a string")
-			#sent_confirmation(user_addr)
+
+			sent_confirmation(user_addr)
 
 			#If address not already present in the list, then add the address. 
 			if user_addr not in user_list: 
@@ -44,7 +37,7 @@ def receive_from_client():
 			
 			#Adding username to list and broadcasting message
 			add_username(data, user_addr)
-			#server_log(data, user_addr)
+			server_log(data, user_addr)
 			
 	except OSError as error:
 		print("No users found")
