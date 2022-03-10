@@ -2,7 +2,7 @@
 import socket
 import threading
 import os
-os.system("python -m pip install pysimplegui")
+os.system("python3 -m pip install pysimplegui")
 
 host = "127.0.0.1"
 port=12000
@@ -28,6 +28,12 @@ def receive_from_client():
 
 			sent_confirmation(user_addr)
 
+			#Client leaves and they're removed from the lists.			
+			if data == "bye" or data == "Bye" or data == "BYE":
+				user_list.remove(user_addr)
+				names.remove(names[user_list.index(user_addr)])
+
+			
 			#If address not already present in the list, then add the address. 
 			if user_addr not in user_list: 
 				user_list.append(user_addr)
@@ -40,7 +46,7 @@ def receive_from_client():
 			#Adding username to list and broadcasting message
 			add_username(data, user_addr)
 			server_log(data, user_addr)
-			
+
 	except OSError as error:
 		print("No users found")
 
@@ -60,6 +66,12 @@ def add_username(data, user_addr):
 	name_and_msg=  data + " #%# " + str(names[index]) 
 	msg_log.append(name_and_msg)
 	broadcast(name_and_msg, user_addr)
+
+#Remove user address from user list
+#Remove name from list of names
+def remove_user(user_addr):
+	user_list.remove(user_addr)
+	names.remove(names[user_list.index(user_addr)])
 
 #Broadcasts message received to all active clients except one who sent the message
 def broadcast(name_and_msg, user_addr):

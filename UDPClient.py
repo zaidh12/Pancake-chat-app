@@ -3,7 +3,7 @@ import socket
 import threading
 import PySimpleGUI as sg
 
-sg.theme("#D7F4FE")
+sg.theme("DarkGreen6")
 
 
 class UDPClient:
@@ -13,8 +13,9 @@ class UDPClient:
 		self.server_addr = (host, port)
 		self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+		
 		#----Creating GUI 'login' window-----
-		layout = [[sg.Text("Enter your name first (beginning with '@'):", size=(20,2), font='LightGrey', text_color='Black')],
+		layout = [[sg.Text("Enter your name first (beginning with '@'):", size=(20,2), font='Black', text_color='Black')],
 		[sg.Input(key='-IN-')],
 		[sg.Button("Enter")]
 		]
@@ -32,9 +33,11 @@ class UDPClient:
 			break
 		window.close()
 		#----End of GUI----
+		
 
 		#Send the name of the client to the server
-		self.socket.sendto(self.name.encode(), self.server_addr)
+		name = input("Enter name:")
+		self.socket.sendto(name.encode(), self.server_addr)
 
 		#Threads - client's can send and receive
 		send_thread= threading.Thread(target=self.send)
@@ -102,18 +105,16 @@ class UDPClient:
 			msg_type = header_list[0]
 			message = header_list[1]
 			sent_hash = header_list[2]
-
-			if message == "bye" or message == "Bye" or message == "BYE":
-
-				#Send header
-				header = message.encode("utf-8")
-				self.socket.sendto(header, self.server_addr) 
-				print("You left the chat")
-				exit()
-				
+			
 			#Send header to the server
 			header = header.encode("utf-8") 
 			self.socket.sendto(header, self.server_addr)
+			
+			#If client leaves, their socket is closed - can't receive or send.
+			if message == "bye" or message == "Bye" or message == "BYE":
+				print("You left the chat")
+				self.socket.close()
+				quit()
 	
 	def receive(self):
 		while True:
