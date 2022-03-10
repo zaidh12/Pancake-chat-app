@@ -4,6 +4,7 @@ import socket
 import threading
 import os
 os.system("python3 -m pip install pysimplegui")
+os.system("python -m pip install pysimplegui")
 
 # Basic UDP relevant code
 host = "127.0.0.1"
