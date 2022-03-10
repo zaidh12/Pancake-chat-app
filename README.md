@@ -1,6 +1,7 @@
 # Pancake-chat-app
-# UDP Chat Application - group and/or one-to-one communication
-# Chat application is similar to MS Teams/Zoom/Vula chat feature.
+
+UDP Chat Application - group and/or one-to-one communication
+Chat application is similar to MS Teams/Zoom/Vula chat feature.
 
 - First run the server from the terminal
 
