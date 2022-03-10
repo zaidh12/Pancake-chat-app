@@ -1,7 +1,8 @@
 # Pancake-chat-app
 
-UDP Chat Application - group and/or one-to-one communication
+UDP Chat Application - group and/or one-to-one communication.
 Chat application is similar to MS Teams/Zoom/Vula chat feature.
+Note: GUI requires PySimpleGUI to run - should be automatically installed.
 
 - First run the server from the terminal
 
